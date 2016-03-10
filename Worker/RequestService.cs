@@ -1,16 +1,11 @@
 ﻿using Autofac;
 using FluentValidation;
 using MassTransit;
-using MassTransit.AutofacIntegration;
 using System;
 using Topshelf;
 using Worker.Interfaces;
 using Worker.Services;
 using Worker.Validators;
-using Autofac.Core;
-using Autofac.Core.Lifetime;
-using Autofac.Core.Resolving;
-using System.Collections.Generic;
 
 namespace Worker
 {

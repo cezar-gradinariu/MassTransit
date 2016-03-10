@@ -38,7 +38,12 @@ namespace Canvas001.Controllers
         public async Task<int> Get([FromUri] ComplexRequest request)
         {
             return await _client.Request(new CurrencyRequest())
-                                .ContinueWith(t => t.Result.Currencies.Count);
+                                .ContinueWith(t =>
+                                {
+                                    if (t.Result != null && t.Result.Currencies != null)
+                                        return t.Result.Currencies.Count;
+                                    return 0;
+                                });
         }
     }
 }

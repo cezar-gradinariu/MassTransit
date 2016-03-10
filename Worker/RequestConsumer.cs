@@ -30,18 +30,15 @@ namespace Worker
             var validation = await validator.ValidateAsync(context.Message);
             if (!validation.IsValid)
             {
-                context.Respond(new CurrencyResponse());
+                context.Respond(new TResponse());
             }
             else
             {
-                await Consume1(context);
+                await ConsumeRequest(context);
             }
         }
 
-        protected virtual async Task Consume1(ConsumeContext<TRequest> context)
-        {
-            await Task.Factory.StartNew(() => { });
-        }
+        protected abstract Task ConsumeRequest(ConsumeContext<TRequest> context);
 
         private static void SetCallId(ConsumeContext<TRequest> context)
         {
@@ -57,7 +54,7 @@ namespace Worker
 
         }
 
-        protected override async Task Consume1(ConsumeContext<CurrencyRequest> context)
+        protected override async Task ConsumeRequest(ConsumeContext<CurrencyRequest> context)
         {
             var uow1 = _lifetimeScope.Resolve<ILowLevelService1>();
             var uow2 = _lifetimeScope.Resolve<ILowLevelService2>();
