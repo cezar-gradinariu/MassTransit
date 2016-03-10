@@ -1,16 +1,11 @@
-﻿using System;
-using Autofac;
-using MassTransit;
-using Topshelf;
-using MassTransit.Pipeline;
-using System.Threading.Tasks;
-using MassTransit.PipeConfigurators;
-using MassTransit.Configurators;
-using System.Linq;
-using System.Collections.Generic;
-using MassTransit.PipeBuilders;
-using Contracts;
+﻿using Autofac;
 using FluentValidation;
+using MassTransit;
+using System;
+using Topshelf;
+using Worker.Interfaces;
+using Worker.Services;
+using Worker.Validators;
 
 namespace Worker
 {
@@ -50,19 +45,11 @@ namespace Worker
 
                 x.ReceiveEndpoint(host, "request_service", e =>
                 {
-                    //e.Consumer(typeof (RequestConsumer), container.Resolve);
-                    e.Consumer(() => container.Resolve<RequestConsumer>() , m => 
-                    {
-                        using (var requestScope = container.BeginLifetimeScope())
-                        {
-                        }
-                        //m.
-                    });
+                    e.Consumer(() => container.Resolve<RequestConsumer>());
                 });
 
             });
 
-            //_busControl.ConnectConsumeObserver(new ConsumeObserver());
             _busControl.Start();
         }
 
@@ -72,91 +59,5 @@ namespace Worker
             return true;
         }
     }
-
-
-    //public class ConsumeObserver : IConsumeObserver
-    //{
-    //    public Task PreConsume<T>(ConsumeContext<T> context) where T : class
-    //    {
-    //        // called before the consumer's Consume method is called
-    //        //return context.NotifyFaulted(TimeSpan.FromMilliseconds(1), "RequestConsumer", new Exception("tttt"));
-
-    //        context.Respond(new CurrencyResponse
-    //        {
-    //            Currencies = new List<CurrencyInfo>
-    //                {
-    //                    new CurrencyInfo {IsoCode = "CAD1"},
-    //                    new CurrencyInfo {IsoCode = "AUD1"},
-    //                    new CurrencyInfo {IsoCode = "USD1"}
-    //                }
-    //        } );
-    //        return Task.Factory.StartNew(() => { });
-    //    }
-
-    //    public Task PostConsume<T>(ConsumeContext<T> context) where T : class
-    //    {
-    //        // called after the consumer's Consume method is called
-    //        // if an exception was thrown, the ConsumeFault method is called instead
-    //        return Task.Factory.StartNew(() => { });
-    //    }
-
-    //    public Task ConsumeFault<T>(ConsumeContext<T> context, Exception exception) where T : class
-    //    {
-    //        // called if the consumer's Consume method throws an exception
-    //        return Task.Factory.StartNew(() => { });
-    //    }
-    //}
-
-    //public static class ExampleMiddlewareConfiguratorExtensions
-    //{
-    //    public static void UseExceptionLogger<T>(this IPipeConfigurator<T> configurator)
-    //        where T : class, ConsumeContext
-    //    {
-    //        configurator.AddPipeSpecification(new ExceptionLoggerSpecification<T>());
-    //    }
-    //}
-
-    //public class ExceptionLoggerSpecification<T> : IPipeSpecification<T> where T : class, ConsumeContext
-    //{
-    //    public IEnumerable<ValidationResult> Validate()
-    //    {
-    //        return Enumerable.Empty<ValidationResult>();
-    //    }
-
-    //    public void Apply(IPipeBuilder<T> builder)
-    //    {
-    //        builder.AddFilter(new ExceptionLoggerFilter<T>());
-    //    }
-    //}
-
-    //public class ExceptionLoggerFilter<T> : IFilter<T> where T : class, ConsumeContext
-    //{
-    //    long _exceptionCount;
-    //    long _successCount;
-    //    long _attemptCount;
-
-    //    public void Probe(ProbeContext context)
-    //    {
-    //        var scope = context.CreateFilterScope("exceptionLogger");
-    //        scope.Add("attempted", _attemptCount);
-    //        scope.Add("succeeded", _successCount);
-    //        scope.Add("faulted", _exceptionCount);
-    //    }
-
-    //    public async Task Send(T context, IPipe<T> next)
-    //    {
-    //        try
-    //        {
-    //            await next.Send(context);
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            await Console.Out.WriteLineAsync($"An exception occurred: {ex.Message}");
-
-    //            // propagate the exception up the call stack
-    //            throw;
-    //        }
-    //    }
-    //}
 }
 
