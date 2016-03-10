@@ -1,0 +1,112 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Autofac.Features.OwnedInstances;
+using Contracts;
+using MassTransit;
+
+namespace Worker
+{
+    public class RequestConsumer : IConsumer<CurrencyRequest>
+    {
+        private Func<Owned<IUnitOfWork>> _unitOfWorkFactory;
+        private readonly ILowLevelService _lowLevelService1;
+        private readonly ILowLevelService _lowLevelService2;
+
+        public RequestConsumer(Func<Owned<IUnitOfWork>> unitOfWorkFactory, ILowLevelService lowLevelService1, ILowLevelService lowLevelService2)
+        {
+            _unitOfWorkFactory = unitOfWorkFactory;
+            _lowLevelService1 = lowLevelService1;
+            _lowLevelService2 = lowLevelService2;
+        }
+
+        //private readonly IUnitOfWork _uow;
+        //private readonly IUnitOfWork _uow1;
+        //public RequestConsumer(IUnitOfWork uow, IUnitOfWork uow1)
+        //{
+        //    _uow = uow;
+        //    _uow1 = uow1;
+        //}
+
+        //public async Task Consume(ConsumeContext<CurrencyRequest> context)
+        //{
+        //    _uow.Do();
+        //    _uow1.Do();
+
+        //    Console.WriteLine("ID:" + context.Headers.Get("ID", (Guid?) Guid.Empty));
+        //    //Thread.Sleep(50);
+        //    context.Respond(new CurrencyResponse
+        //    {
+        //        Currencies = new List<CurrencyInfo>
+        //        {
+        //            new CurrencyInfo {IsoCode = "CAD"},
+        //            new CurrencyInfo {IsoCode = "AUD"},
+        //            new CurrencyInfo {IsoCode = "USD"}
+        //        }
+        //    });
+        //}
+
+
+
+        public async Task Consume(ConsumeContext<CurrencyRequest> context)
+        {
+            using (var unitOfWork = _unitOfWorkFactory())
+            {
+                Console.WriteLine("ID:" + context.Headers.Get("ID", (Guid?) Guid.Empty));
+                context.Respond(new CurrencyResponse
+                {
+                    Currencies = new List<CurrencyInfo>
+                    {
+                        new CurrencyInfo {IsoCode = "CAD"},
+                        new CurrencyInfo {IsoCode = "AUD"},
+                        new CurrencyInfo {IsoCode = "USD"}
+                    }
+                });
+                unitOfWork.Value.Do();
+                _lowLevelService1.Do();
+                _lowLevelService2.Do();
+            }
+        }
+    }
+
+
+    public interface ILowLevelService
+    {
+        void Do();
+    }
+
+    public class LowLevelService : ILowLevelService
+    {
+        private readonly IUnitOfWork _uow;
+        public LowLevelService(IUnitOfWork uow)
+        {
+            _uow = uow;
+        }
+        public void Do()
+        {
+            _uow.Do();
+        }
+    }
+
+    public interface IUnitOfWork
+    {
+        void Do ();
+    }
+
+    public class UnitOfWork : IUnitOfWork
+    {
+        public static int X;
+
+        public int x { get; set; }
+
+        public UnitOfWork()
+        {
+            X++;
+            x = X;
+        }
+        public void Do()
+        {
+            Console.WriteLine(x);
+        }
+    }
+}
