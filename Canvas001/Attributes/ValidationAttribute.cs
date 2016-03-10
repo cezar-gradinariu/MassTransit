@@ -22,5 +22,16 @@ namespace Canvas001.Attributes
             }
             return base.OnActionExecutingAsync(actionContext, cancellationToken);
         }
+
+        public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
+        {
+            base.OnActionExecuted(actionExecutedContext);
+        }
+
+        public override Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext, CancellationToken cancellationToken)
+        {
+            //var x = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("ID");
+            return base.OnActionExecutedAsync(actionExecutedContext, cancellationToken);
+        }
     }
 }

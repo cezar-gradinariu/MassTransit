@@ -1,11 +1,16 @@
 ﻿using Autofac;
 using FluentValidation;
 using MassTransit;
+using MassTransit.AutofacIntegration;
 using System;
 using Topshelf;
 using Worker.Interfaces;
 using Worker.Services;
 using Worker.Validators;
+using Autofac.Core;
+using Autofac.Core.Lifetime;
+using Autofac.Core.Resolving;
+using System.Collections.Generic;
 
 namespace Worker
 {
@@ -25,6 +30,7 @@ namespace Worker
                    .AsClosedTypesOf(typeof(AbstractValidator<>))
                    .AsImplementedInterfaces();
 
+            builder.RegisterLifetimeScopeRegistry<string>("message");
 
             var container = builder.Build();
 
@@ -45,7 +51,7 @@ namespace Worker
 
                 x.ReceiveEndpoint(host, "request_service", e =>
                 {
-                    e.Consumer(() => container.Resolve<RequestConsumer>());
+                    e.ConsumerInScope<RequestConsumer, string>(container);
                 });
 
             });
@@ -58,6 +64,6 @@ namespace Worker
             _busControl?.Stop();
             return true;
         }
-    }
+    }    
 }
 

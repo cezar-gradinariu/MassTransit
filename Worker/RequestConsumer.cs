@@ -15,7 +15,7 @@ namespace Worker
         where TRequest : class
         where TResponse : class, new()
     {
-        private readonly ILifetimeScope _lifetimeScope;
+        protected readonly ILifetimeScope _lifetimeScope;
 
         public RequestConsumerBase(ILifetimeScope lifetimeScope)
         {
@@ -34,14 +34,11 @@ namespace Worker
             }
             else
             {
-                using (var messageScope = _lifetimeScope.BeginLifetimeScope())
-                {
-                    await Consume1(context, messageScope);
-                }
+                await Consume1(context);
             }
         }
 
-        protected virtual async Task Consume1(ConsumeContext<TRequest> context, ILifetimeScope messageScope)
+        protected virtual async Task Consume1(ConsumeContext<TRequest> context)
         {
             await Task.Factory.StartNew(() => { });
         }
@@ -60,10 +57,10 @@ namespace Worker
 
         }
 
-        protected override async Task Consume1(ConsumeContext<CurrencyRequest> context, ILifetimeScope messageScope)
+        protected override async Task Consume1(ConsumeContext<CurrencyRequest> context)
         {
-            var uow1 = messageScope.Resolve<ILowLevelService1>();
-            var uow2 = messageScope.Resolve<ILowLevelService2>();
+            var uow1 = _lifetimeScope.Resolve<ILowLevelService1>();
+            var uow2 = _lifetimeScope.Resolve<ILowLevelService2>();
 
             uow1.Do();
             uow2.Do();
