@@ -15,15 +15,14 @@ namespace Worker
 
         public bool Start(HostControl hostControl)
         {
-
             var builder = new ContainerBuilder();
             builder.RegisterType<RequestConsumer>().As<RequestConsumer>();
             builder.RegisterType<UnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();
             builder.RegisterType<LowLevelService1>().As<ILowLevelService1>().InstancePerLifetimeScope();
             builder.RegisterType<LowLevelService2>().As<ILowLevelService2>().InstancePerLifetimeScope();
-            builder.RegisterAssemblyTypes(typeof(CurrencyRequestValidator).Assembly)
-                   .AsClosedTypesOf(typeof(AbstractValidator<>))
-                   .AsImplementedInterfaces();
+            builder.RegisterAssemblyTypes(typeof (CurrencyRequestValidator).Assembly)
+                .AsClosedTypesOf(typeof (AbstractValidator<>))
+                .AsImplementedInterfaces();
 
             builder.RegisterLifetimeScopeRegistry<string>("message");
 
@@ -44,11 +43,7 @@ namespace Worker
                     h.Password("admin");
                 });
 
-                x.ReceiveEndpoint(host, "request_service", e =>
-                {
-                    e.ConsumerInScope<RequestConsumer, string>(container);
-                });
-
+                x.ReceiveEndpoint(host, "request_service", e => { e.ConsumerInScope<RequestConsumer, string>(container); });
             });
 
             _busControl.Start();
@@ -59,6 +54,5 @@ namespace Worker
             _busControl?.Stop();
             return true;
         }
-    }    
+    }
 }
-

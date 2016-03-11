@@ -36,8 +36,7 @@ namespace Canvas001
                 var client = bus.CreateRequestClient<CurrencyRequest, CurrencyResponse>(serviceAddress, TimeSpan.FromSeconds(100000));
                 return client;
             })
-            //.SingleInstance()
-            .As<IRequestClient<CurrencyRequest, CurrencyResponse>>();
+                .As<IRequestClient<CurrencyRequest, CurrencyResponse>>();
         }
     }
 }

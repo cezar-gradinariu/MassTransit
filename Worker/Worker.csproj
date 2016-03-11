@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Worker</RootNamespace>
     <AssemblyName>Worker</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -80,12 +80,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\ILowLevelService1.cs" />
     <Compile Include="Interfaces\ILowLevelService2.cs" />
+    <Compile Include="Interfaces\IUnitOfWork.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RequestConsumer.cs" />
+    <Compile Include="RequestConsumerBase.cs" />
     <Compile Include="RequestService.cs" />
+    <Compile Include="Services\LowLevelService1.cs" />
     <Compile Include="Services\LowLevelService2.cs" />
+    <Compile Include="Services\UnitOfWork.cs" />
     <Compile Include="Validators\CurrencyRequestValidator.cs" />
   </ItemGroup>
   <ItemGroup>

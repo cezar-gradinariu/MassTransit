@@ -15,11 +15,11 @@ namespace Canvas001.Validators
                 return vResult;
             }
 
-            var results = new 
+            var results = new
             {
                 vResult.Errors.First().ErrorCode,
                 vResult.Errors.First().ErrorMessage,
-                Errors = vResult.Errors.Select(v => new 
+                Errors = vResult.Errors.Select(v => new
                 {
                     v.ErrorCode,
                     v.ErrorMessage,

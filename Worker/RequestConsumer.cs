@@ -4,75 +4,34 @@ using System.Threading.Tasks;
 using Autofac;
 using Contracts;
 using MassTransit;
-using System.Runtime.Remoting.Messaging;
-using FluentValidation;
 using Worker.Interfaces;
 
 namespace Worker
 {
-
-    public abstract class RequestConsumerBase<TRequest, TResponse> : IConsumer<TRequest> 
-        where TRequest : class
-        where TResponse : class, new()
-    {
-        protected readonly ILifetimeScope _lifetimeScope;
-
-        public RequestConsumerBase(ILifetimeScope lifetimeScope)
-        {
-            _lifetimeScope = lifetimeScope;
-        }
-
-        public async Task Consume(ConsumeContext<TRequest> context)
-        {
-            SetCallId(context);
-
-            var validator = _lifetimeScope.Resolve<AbstractValidator<TRequest>>();
-            var validation = await validator.ValidateAsync(context.Message);
-            if (!validation.IsValid)
-            {
-                context.Respond(new TResponse());
-            }
-            else
-            {
-                await ConsumeRequest(context);
-            }
-        }
-
-        protected abstract Task ConsumeRequest(ConsumeContext<TRequest> context);
-
-        private static void SetCallId(ConsumeContext<TRequest> context)
-        {
-            CallContext.LogicalSetData("call id", context.Headers.Get("ID", (Guid?)Guid.Empty));
-        }
-
-    }
-
     public class RequestConsumer : RequestConsumerBase<CurrencyRequest, CurrencyResponse>
     {
         public RequestConsumer(ILifetimeScope lifetimeScope) : base(lifetimeScope)
         {
-
         }
 
         protected override async Task ConsumeRequest(ConsumeContext<CurrencyRequest> context)
         {
-            var uow1 = _lifetimeScope.Resolve<ILowLevelService1>();
-            var uow2 = _lifetimeScope.Resolve<ILowLevelService2>();
+            var uow1 = LifetimeScope.Resolve<ILowLevelService1>();
+            var uow2 = LifetimeScope.Resolve<ILowLevelService2>();
 
             uow1.Do();
             uow2.Do();
 
-            Console.WriteLine("ID:" + context.Headers.Get("ID", (Guid?)Guid.Empty));
+            Console.WriteLine("ID:" + context.Headers.Get("ID", (Guid?) Guid.Empty));
             context.Respond(new CurrencyResponse
             {
                 Currencies = new List<CurrencyInfo>
-                    {
-                        new CurrencyInfo {IsoCode = "CAD"},
-                        new CurrencyInfo {IsoCode = "AUD"},
-                        new CurrencyInfo {IsoCode = "USD"}
-                    }
+                {
+                    new CurrencyInfo {IsoCode = "CAD"},
+                    new CurrencyInfo {IsoCode = "AUD"},
+                    new CurrencyInfo {IsoCode = "USD"}
+                }
             });
         }
     }
-
 }

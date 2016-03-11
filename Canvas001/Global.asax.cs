@@ -30,10 +30,7 @@ namespace Canvas001
 
             //Fluent validation - register own lbrary
             FluentValidationModelValidatorProvider.Configure(GlobalConfiguration.Configuration,
-                p =>
-                {
-                    p.ValidatorFactory = new AutofacValidatorFactory();
-                });
+                p => { p.ValidatorFactory = new AutofacValidatorFactory(); });
 
             // Set the dependency resolver to be Autofac.
             var container = builder.Build();
@@ -51,7 +48,7 @@ namespace Canvas001
             var x = Guid.NewGuid().ToString();
             CallContext.LogicalSetData("ID", x);
         }
-        
+
         public class AutofacValidatorFactory : ValidatorFactoryBase
         {
             public override IValidator CreateInstance(Type validatorType)
