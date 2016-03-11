@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http;
 using Canvas001.Attributes;
-using Contracts;
+using Contracts.Requests;
+using Contracts.Responses;
 using MassTransit;
 
 namespace Canvas001.Controllers

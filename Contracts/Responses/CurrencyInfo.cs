@@ -1,4 +1,4 @@
-namespace Contracts
+namespace Contracts.Responses
 {
     public class CurrencyInfo
     {

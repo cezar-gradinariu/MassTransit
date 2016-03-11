@@ -1,4 +1,4 @@
-﻿namespace Contracts
+﻿namespace Contracts.Requests
 {
     public class CurrencyRequest
     {

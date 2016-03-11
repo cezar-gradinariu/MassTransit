@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Autofac;
-using Contracts;
+using Contracts.Requests;
+using Contracts.Responses;
 using MassTransit;
 using Worker.Interfaces;
 

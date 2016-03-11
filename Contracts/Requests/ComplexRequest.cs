@@ -1,6 +1,6 @@
-﻿namespace Contracts
+﻿namespace Contracts.Requests
 {
-    public class ComplexRequest
+    public class ComplexRequest : RequestBase
     {
         public string Name { get; set; }
         public string Brand { get; set; }

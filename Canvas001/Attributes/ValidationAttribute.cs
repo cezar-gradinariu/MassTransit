@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
+using Contracts.Responses;
 
 namespace Canvas001.Attributes
 {
@@ -30,7 +31,18 @@ namespace Canvas001.Attributes
 
         public override Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext, CancellationToken cancellationToken)
         {
-            //var x = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("ID");
+            var objectContent = (ObjectContent)actionExecutedContext.ActionContext.Response.Content;
+            var responseType = objectContent.ObjectType;
+            if (typeof (ResponseBase).IsAssignableFrom(responseType))
+            {
+                var result = objectContent.Value as ResponseBase;
+                if (result != null && (result.Error == null || result.Validation == null))
+                {
+                    actionExecutedContext.Response = 
+                        actionExecutedContext.Request.CreateResponse(HttpStatusCode.Forbidden, result.Validation);
+                }
+            }
+
             return base.OnActionExecutedAsync(actionExecutedContext, cancellationToken);
         }
     }

@@ -1,4 +1,4 @@
-﻿using Contracts;
+﻿using Contracts.Requests;
 using FluentValidation;
 
 namespace Worker.Validators

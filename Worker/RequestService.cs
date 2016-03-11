@@ -1,7 +1,7 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using FluentValidation;
 using MassTransit;
-using System;
 using Topshelf;
 using Worker.Interfaces;
 using Worker.Services;

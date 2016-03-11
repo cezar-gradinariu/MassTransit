@@ -1,4 +1,5 @@
-﻿using Contracts;
+﻿using Contracts.Requests;
+using Contracts.Responses;
 using FluentValidation;
 using MassTransit;
 

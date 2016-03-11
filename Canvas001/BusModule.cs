@@ -1,7 +1,8 @@
 using System;
 using System.Runtime.Remoting.Messaging;
 using Autofac;
-using Contracts;
+using Contracts.Requests;
+using Contracts.Responses;
 using MassTransit;
 
 namespace Canvas001

@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http;
-using Contracts;
+using Canvas001.Attributes;
+using Contracts.Requests;
+using Contracts.Responses;
 using MassTransit;
 
 namespace Canvas001.Controllers
@@ -25,6 +27,7 @@ namespace Canvas001.Controllers
         //    return t.Result;
         //}
 
+        [Validation]
         public async Task<CurrencyResponse> Get()
         {
             return await _client.Request(new CurrencyRequest());

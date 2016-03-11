@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Autofac;
+using Contracts.Responses;
 using FluentValidation;
 using MassTransit;
 
@@ -9,7 +11,7 @@ namespace Worker
 {
     public abstract class RequestConsumerBase<TRequest, TResponse> : IConsumer<TRequest>
         where TRequest : class
-        where TResponse : class, new()
+        where TResponse : ResponseBase, new()
     {
         protected readonly ILifetimeScope LifetimeScope;
 
@@ -26,13 +28,28 @@ namespace Worker
             var validation = await validator.ValidateAsync(context.Message);
             if (!validation.IsValid)
             {
-                context.Respond(new TResponse());
+                var result = new TResponse
+                {
+                    Validation = new Error
+                    {
+                        ErrorCode = validation.Errors.First().ErrorCode,
+                        ErrorMessage = validation.Errors.First().ErrorMessage,
+                        Errors = validation.Errors.Select(err => new ErrorInfo
+                        {
+                            ErrorCode = err.ErrorCode,
+                            ErrorMessage = err.ErrorMessage,
+                            PropertyName = err.PropertyName
+                        }).ToList()
+                    }
+                };
+                context.Respond(result);
             }
             else
             {
                 await ConsumeRequest(context);
             }
         }
+
 
         protected abstract Task ConsumeRequest(ConsumeContext<TRequest> context);
 

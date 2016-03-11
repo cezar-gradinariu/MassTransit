@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Contracts
+namespace Contracts.Responses
 {
-    public class CurrencyResponse
+    public class CurrencyResponse : ResponseBase
     {
         public List<CurrencyInfo> Currencies { get; set; }
     }
