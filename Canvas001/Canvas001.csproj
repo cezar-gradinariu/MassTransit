@@ -129,7 +129,6 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ValidationModule.cs" />
-    <Compile Include="Validators\BaseValidator.cs" />
     <Compile Include="Validators\ComplexRequestValidator.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -6,6 +6,7 @@ using Autofac;
 using Contracts.Responses;
 using FluentValidation;
 using MassTransit;
+using FluentValidation.Results;
 
 namespace Worker
 {
@@ -28,21 +29,7 @@ namespace Worker
             var validation = await validator.ValidateAsync(context.Message);
             if (!validation.IsValid)
             {
-                var result = new TResponse
-                {
-                    Validation = new Error
-                    {
-                        ErrorCode = validation.Errors.First().ErrorCode,
-                        ErrorMessage = validation.Errors.First().ErrorMessage,
-                        Errors = validation.Errors.Select(err => new ErrorInfo
-                        {
-                            ErrorCode = err.ErrorCode,
-                            ErrorMessage = err.ErrorMessage,
-                            PropertyName = err.PropertyName
-                        }).ToList()
-                    }
-                };
-                context.Respond(result);
+                context.Respond(validation.AsError());
             }
             else
             {
@@ -56,6 +43,24 @@ namespace Worker
         private static void SetCallId(ConsumeContext<TRequest> context)
         {
             CallContext.LogicalSetData("call id", context.Headers.Get("ID", (Guid?) Guid.Empty));
+        }
+    }
+
+    public static class FluentValidationExtensions
+    {
+        public static Error AsError(this ValidationResult validation)
+        {
+            return new Error
+            {
+                ErrorCode = validation.Errors.First().ErrorCode,
+                ErrorMessage = validation.Errors.First().ErrorMessage,
+                Errors = validation.Errors.Select(v => new ErrorInfo
+                {
+                    ErrorCode = v.ErrorCode,
+                    ErrorMessage = v.ErrorMessage,
+                    PropertyName = v.PropertyName
+                }).ToList()
+            };
         }
     }
 }

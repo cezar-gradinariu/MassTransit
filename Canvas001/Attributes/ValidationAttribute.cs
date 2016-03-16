@@ -1,19 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
-using System.Web.UI;
 using Autofac;
 using Autofac.Integration.WebApi;
 using Contracts.Responses;
 using FluentValidation;
-using Newtonsoft.Json;
+using FluentValidation.Results;
 
 namespace Canvas001.Attributes
 {
@@ -30,105 +24,66 @@ namespace Canvas001.Attributes
         {
             foreach (var item in actionContext.ActionArguments.Values)
             {
-                var typeInRuntime = item.GetType();
-                var validator = _lifetimeScope.Resolve(typeof (AbstractValidator<>)
-                                              .MakeGenericType(typeInRuntime)) as FluentValidation.IValidator;
-
-                if (validator == null)
+                var vResult = Validate(item);
+                if (vResult != null)
                 {
-                    continue;
+                    actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Forbidden, vResult);
+                    return;
                 }
-
-                var vResult = validator.Validate(item);
-                if (vResult.IsValid)
-                {
-                    continue;
-                }
-
-                var results = new
-                {
-                    vResult.Errors.First().ErrorCode,
-                    vResult.Errors.First().ErrorMessage,
-                    Errors = vResult.Errors.Select(v => new
-                    {
-                        v.ErrorCode,
-                        v.ErrorMessage,
-                        v.PropertyName
-                    })
-                };
-
-                actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Forbidden, results);
             }
         }
 
         public void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
         {
-            var objectContent = (ObjectContent)actionExecutedContext.ActionContext.Response.Content;
-            var responseType = objectContent.ObjectType;
-            if (typeof (ResponseBase).IsAssignableFrom(responseType))
+            var content = (ObjectContent)actionExecutedContext.ActionContext.Response.Content;
+            var result = content?.Value as ResponseBase;
+            if (result?.Validation != null)
             {
-                var result = objectContent.Value as ResponseBase;
-                if (result != null)
-                {
-                    if (result.Validation != null)
-                    {
-                        actionExecutedContext.Response =
-                            actionExecutedContext.Request.CreateResponse(HttpStatusCode.Forbidden, result.Validation);
-                    }
-                    else
-                    {
-                        if (result.Error != null)
-                        {
-                            actionExecutedContext.Response =
-                                actionExecutedContext.Request.CreateResponse(HttpStatusCode.InternalServerError, result.Error);
-                        }
-                    }
-                }
+                actionExecutedContext.Response =
+                        actionExecutedContext.Request.CreateResponse(HttpStatusCode.Forbidden, result.Validation);
+                return;
             }
+            if (result?.Error != null)
+            {
+                actionExecutedContext.Response =
+                    actionExecutedContext.Request.CreateResponse(HttpStatusCode.InternalServerError, result.Error);
+            }
+        }
+
+        public Error Validate(object item)
+        {
+            var validator = GetValidatorFor(item);
+            var vResult = validator?.Validate(item);
+            return vResult?.IsValid == false
+                ? vResult.AsError()
+                : null;
+        }
+
+        public IValidator GetValidatorFor(object item)
+        {
+            var typeInRuntime = item.GetType();
+            var validatorType = typeof(AbstractValidator<>).MakeGenericType(typeInRuntime);
+            return _lifetimeScope.IsRegistered(validatorType)
+                ? _lifetimeScope.Resolve(validatorType) as IValidator
+                : null;
         }
     }
 
-
-    public class ValidationAttribute : ActionFilterAttribute
+    public static class FluentValidationExtensions
     {
-        public override Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
+        public static Error AsError(this ValidationResult validation)
         {
-            //var modelState = actionContext.ModelState;
-            //if (!modelState.IsValid)
-            //{
-            //    var data = modelState["ValidationReport"].Errors[0].ErrorMessage;
-
-            //    actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Forbidden, string.Empty);
-            //    actionContext.Response.Content = new StringContent(data, Encoding.UTF8, "application/json");
-            //}
-            return base.OnActionExecutingAsync(actionContext, cancellationToken);
-        }
-
-        public override Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext, CancellationToken cancellationToken)
-        {
-            //var objectContent = (ObjectContent)actionExecutedContext.ActionContext.Response.Content;
-            //var responseType = objectContent.ObjectType;
-            //if (typeof(ResponseBase).IsAssignableFrom(responseType))
-            //{
-            //    var result = objectContent.Value as ResponseBase;
-            //    if (result != null)
-            //    {
-            //        if (result.Validation != null)
-            //        {
-            //            actionExecutedContext.Response =
-            //                actionExecutedContext.Request.CreateResponse(HttpStatusCode.Forbidden, result.Validation);
-            //        }
-            //        else
-            //        {
-            //            if (result.Error != null)
-            //            {
-            //                actionExecutedContext.Response =
-            //                    actionExecutedContext.Request.CreateResponse(HttpStatusCode.InternalServerError, result.Error);
-            //            }
-            //        }
-            //    }
-            //}
-            return base.OnActionExecutedAsync(actionExecutedContext, cancellationToken);
+            return new Error
+            {
+                ErrorCode = validation.Errors.First().ErrorCode,
+                ErrorMessage = validation.Errors.First().ErrorMessage,
+                Errors = validation.Errors.Select(v => new ErrorInfo
+                {
+                    ErrorCode = v.ErrorCode,
+                    ErrorMessage = v.ErrorMessage,
+                    PropertyName = v.PropertyName
+                }).ToList()
+            };
         }
     }
 }
