@@ -5,9 +5,12 @@ using System.Web;
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
+using Canvas001.Attributes;
+using Canvas001.Validators;
 using FluentValidation;
 using FluentValidation.WebApi;
 using MassTransit;
+using Newtonsoft.Json;
 
 namespace Canvas001
 {
@@ -23,14 +26,25 @@ namespace Canvas001
 
             // OPTIONAL: Register the Autofac filter provider.
             builder.RegisterWebApiFilterProvider(config);
+            builder.Register(c => new ValidateActionFilter(c.Resolve<ILifetimeScope>()))
+                .AsWebApiActionFilterFor<ApiController>()
+                .InstancePerRequest();
 
             //Register mass transit
             builder.RegisterModule<BusModule>();
             builder.RegisterModule<ValidationModule>();
 
             //Fluent validation - register own lbrary
-            FluentValidationModelValidatorProvider.Configure(GlobalConfiguration.Configuration,
-                p => { p.ValidatorFactory = new AutofacValidatorFactory(); });
+            //FluentValidationModelValidatorProvider.Configure(GlobalConfiguration.Configuration,
+            //    p => { p.ValidatorFactory = new AutofacValidatorFactory(); });
+
+
+            config.Formatters.JsonFormatter.SerializerSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+
+            builder.RegisterAssemblyTypes(typeof(ComplexRequestValidator).Assembly)
+                .AsClosedTypesOf(typeof(AbstractValidator<>))
+                .AsImplementedInterfaces();
+
 
             // Set the dependency resolver to be Autofac.
             var container = builder.Build();

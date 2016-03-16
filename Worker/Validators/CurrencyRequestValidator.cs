@@ -7,7 +7,7 @@ namespace Worker.Validators
     {
         public CurrencyRequestValidator()
         {
-            RuleFor(p => p).Must(p => false);
+            RuleFor(p => p).Must(p => true);
         }
     }
 }

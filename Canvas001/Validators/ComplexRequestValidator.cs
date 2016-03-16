@@ -5,7 +5,7 @@ using MassTransit;
 
 namespace Canvas001.Validators
 {
-    public class ComplexRequestValidator : BaseValidator<ComplexRequest>
+    public class ComplexRequestValidator : AbstractValidator<ComplexRequest>
     {
         public ComplexRequestValidator(IRequestClient<CurrencyRequest, CurrencyResponse> client)
         {

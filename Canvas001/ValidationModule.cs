@@ -14,10 +14,7 @@ namespace Canvas001
                 .AsImplementedInterfaces()
                 .InstancePerDependency();
 
-            // builder.RegisterType<FluentValidationModelValidatorProvider>().As<ModelValidatorProvider>();
-
             builder.RegisterType<WebApiApplication.AutofacValidatorFactory>().As<IValidatorFactory>().SingleInstance();
-
             base.Load(builder);
         }
     }
