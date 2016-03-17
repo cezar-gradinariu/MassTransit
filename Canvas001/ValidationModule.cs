@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Autofac;
-using FluentValidation;
 using Module = Autofac.Module;
 
 namespace Canvas001
@@ -14,7 +13,6 @@ namespace Canvas001
                 .AsImplementedInterfaces()
                 .InstancePerDependency();
 
-            builder.RegisterType<WebApiApplication.AutofacValidatorFactory>().As<IValidatorFactory>().SingleInstance();
             base.Load(builder);
         }
     }

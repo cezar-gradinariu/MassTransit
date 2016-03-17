@@ -121,7 +121,6 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Attributes\ValidationAttribute.cs" />
     <Compile Include="BusModule.cs" />
-    <Compile Include="Container.cs" />
     <Compile Include="Controllers\ComplexController.cs" />
     <Compile Include="Controllers\CurrenciesController.cs" />
     <Compile Include="Global.asax.cs">

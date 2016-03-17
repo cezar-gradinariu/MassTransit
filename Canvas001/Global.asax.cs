@@ -34,11 +34,6 @@ namespace Canvas001
             builder.RegisterModule<BusModule>();
             builder.RegisterModule<ValidationModule>();
 
-            //Fluent validation - register own lbrary
-            //FluentValidationModelValidatorProvider.Configure(GlobalConfiguration.Configuration,
-            //    p => { p.ValidatorFactory = new AutofacValidatorFactory(); });
-
-
             config.Formatters.JsonFormatter.SerializerSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
 
             builder.RegisterAssemblyTypes(typeof(ComplexRequestValidator).Assembly)
@@ -53,27 +48,12 @@ namespace Canvas001
             GlobalConfiguration.Configure(WebApiConfig.Register);
             var busControl = container.Resolve<IBusControl>();
             busControl.Start();
-
-            Container.Instance = container;
         }
 
         protected void Application_BeginRequest()
         {
             var x = Guid.NewGuid().ToString();
             CallContext.LogicalSetData("ID", x);
-        }
-
-        public class AutofacValidatorFactory : ValidatorFactoryBase
-        {
-            public override IValidator CreateInstance(Type validatorType)
-            {
-                object instance;
-                if (!Container.Instance.TryResolve(validatorType, out instance))
-                {
-                    return null;
-                }
-                return instance as IValidator;
-            }
         }
     }
 }
