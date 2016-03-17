@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Canvas001", "Canvas001\Canvas001.csproj", "{C7EE6F1E-B750-4CA4-88DE-8C5E13FD7638}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiHost", "ApiHost\ApiHost.csproj", "{C7EE6F1E-B750-4CA4-88DE-8C5E13FD7638}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\Contracts.csproj", "{B3B7801B-588E-4A7E-88CF-9A6C5480E2C7}"
 EndProject
