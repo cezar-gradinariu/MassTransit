@@ -5,7 +5,7 @@ using Contracts.Requests;
 using Contracts.Responses;
 using MassTransit;
 
-namespace Canvas001
+namespace ApiHost
 {
     public class BusModule : Module
     {

@@ -19,7 +19,6 @@ namespace Worker
         {
             var uow1 = LifetimeScope.Resolve<ILowLevelService1>();
             var uow2 = LifetimeScope.Resolve<ILowLevelService2>();
-
             uow1.Do();
             uow2.Do();
 

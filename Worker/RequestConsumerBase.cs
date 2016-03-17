@@ -29,7 +29,9 @@ namespace Worker
             var validation = await validator.ValidateAsync(context.Message);
             if (!validation.IsValid)
             {
-                context.Respond(validation.AsError());
+                var response = new TResponse();
+                response.Validation = validation.AsError();
+                context.Respond(response);
             }
             else
             {

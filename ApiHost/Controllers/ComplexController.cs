@@ -3,8 +3,10 @@ using System.Web.Http;
 using Contracts.Requests;
 using Contracts.Responses;
 using MassTransit;
+using System.Net.Http;
+using System.Net;
 
-namespace Canvas001.Controllers
+namespace ApiHost.Controllers
 {
     [RoutePrefix("api/Complex")]
     public class ComplexController : ApiController
@@ -18,15 +20,16 @@ namespace Canvas001.Controllers
 
         [Route("{Name}/{Brand}/{Amount}")]
         [HttpGet]
+        //public async Task<IHttpActionResult> Get([FromUri] ComplexRequest request)
         public async Task<int> Get([FromUri] ComplexRequest request)
         {
-            return await _client.Request(new CurrencyRequest())
+            var result = await _client.Request(new CurrencyRequest())
                 .ContinueWith(t =>
                 {
-                    if (t.Result != null && t.Result.Currencies != null)
-                        return t.Result.Currencies.Count;
-                    return 0;
+                    return t.Result?.Currencies?.Count ?? 0;
                 });
+            return result;
+            //return Ok(result);
         }
     }
 }

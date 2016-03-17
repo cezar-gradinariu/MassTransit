@@ -5,14 +5,14 @@ using System.Web;
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
-using Canvas001.Attributes;
-using Canvas001.Validators;
+using ApiHost.Attributes;
+using ApiHost.Validators;
 using FluentValidation;
 using FluentValidation.WebApi;
 using MassTransit;
 using Newtonsoft.Json;
 
-namespace Canvas001
+namespace ApiHost
 {
     public class WebApiApplication : HttpApplication
     {

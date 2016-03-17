@@ -9,7 +9,7 @@ using Contracts.Responses;
 using FluentValidation;
 using FluentValidation.Results;
 
-namespace Canvas001.Attributes
+namespace ApiHost.Attributes
 {
     public class ValidateActionFilter : IAutofacActionFilter
     {
@@ -35,6 +35,10 @@ namespace Canvas001.Attributes
 
         public void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
         {
+            if(actionExecutedContext.Exception != null)
+            {
+                return;
+            }
             var content = (ObjectContent)actionExecutedContext.ActionContext.Response.Content;
             var result = content?.Value as ResponseBase;
             if (result?.Validation != null)

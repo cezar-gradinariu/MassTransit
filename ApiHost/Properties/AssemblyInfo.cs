@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Canvas001")]
+[assembly: AssemblyTitle("ApiHost")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("OzForex")]
-[assembly: AssemblyProduct("Canvas001")]
+[assembly: AssemblyProduct("ApiHost")]
 [assembly: AssemblyCopyright("Copyright © OzForex 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

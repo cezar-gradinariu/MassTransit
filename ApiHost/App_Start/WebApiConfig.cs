@@ -1,6 +1,6 @@
 ﻿using System.Web.Http;
 
-namespace Canvas001
+namespace ApiHost
 {
     public static class WebApiConfig
     {

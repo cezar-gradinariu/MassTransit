@@ -2,7 +2,7 @@
 using Autofac;
 using Module = Autofac.Module;
 
-namespace Canvas001
+namespace ApiHost
 {
     public class ValidationModule : Module
     {

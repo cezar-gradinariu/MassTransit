@@ -3,7 +3,7 @@ using Contracts.Responses;
 using FluentValidation;
 using MassTransit;
 
-namespace Canvas001.Validators
+namespace ApiHost.Validators
 {
     public class ComplexRequestValidator : AbstractValidator<ComplexRequest>
     {
@@ -12,6 +12,7 @@ namespace Canvas001.Validators
             RuleFor(p => p.Name)
                 .Must(p =>
                 {
+                    //TODO: When fails it should return an explicit error.
                     var data = client.Request(new CurrencyRequest());
                     var x = data.Result.Currencies;
                     return true;
