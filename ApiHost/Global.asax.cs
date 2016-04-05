@@ -8,9 +8,9 @@ using Autofac.Integration.WebApi;
 using ApiHost.Attributes;
 using ApiHost.Validators;
 using FluentValidation;
-using FluentValidation.WebApi;
 using MassTransit;
 using Newtonsoft.Json;
+using ApiHost.MediaTypeFormatters;
 
 namespace ApiHost
 {
@@ -34,7 +34,9 @@ namespace ApiHost
             builder.RegisterModule<BusModule>();
             builder.RegisterModule<ValidationModule>();
 
-            config.Formatters.JsonFormatter.SerializerSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+            config.Formatters.RemoveAt(0);
+            config.Formatters.Insert(0, new JilFormatter());
+            //config.Formatters.JsonFormatter.SerializerSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
 
             builder.RegisterAssemblyTypes(typeof(ComplexRequestValidator).Assembly)
                 .AsClosedTypesOf(typeof(AbstractValidator<>))
