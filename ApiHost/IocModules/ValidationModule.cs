@@ -2,7 +2,7 @@
 using Autofac;
 using Module = Autofac.Module;
 
-namespace ApiHost
+namespace ApiHost.IocModules
 {
     public class ValidationModule : Module
     {

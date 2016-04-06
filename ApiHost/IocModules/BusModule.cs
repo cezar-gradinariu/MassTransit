@@ -5,7 +5,7 @@ using Contracts.Requests;
 using Contracts.Responses;
 using MassTransit;
 
-namespace ApiHost
+namespace ApiHost.IocModules
 {
     public class BusModule : Module
     {

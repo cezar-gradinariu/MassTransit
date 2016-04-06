@@ -9,7 +9,7 @@ using Contracts.Responses;
 using FluentValidation;
 using FluentValidation.Results;
 
-namespace ApiHost.Attributes
+namespace ApiHost.Filters
 {
     public class ValidateActionFilter : IAutofacActionFilter
     {
