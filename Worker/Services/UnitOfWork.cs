@@ -6,10 +6,8 @@ namespace Worker.Services
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private ILifetimeScope _lifetimeScope;
-
-
         public static int X;
+        private ILifetimeScope _lifetimeScope;
 
         public UnitOfWork(ILifetimeScope lifetimeScope)
         {

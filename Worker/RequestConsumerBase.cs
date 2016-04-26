@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Autofac;
 using Contracts.Responses;
 using FluentValidation;
-using MassTransit;
 using FluentValidation.Results;
+using MassTransit;
 
 namespace Worker
 {
@@ -38,7 +38,6 @@ namespace Worker
                 await ConsumeRequest(context);
             }
         }
-
 
         protected abstract Task ConsumeRequest(ConsumeContext<TRequest> context);
 

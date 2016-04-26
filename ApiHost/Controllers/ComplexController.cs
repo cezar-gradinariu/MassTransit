@@ -3,8 +3,6 @@ using System.Web.Http;
 using Contracts.Requests;
 using Contracts.Responses;
 using MassTransit;
-using System.Net.Http;
-using System.Net;
 
 namespace ApiHost.Controllers
 {
@@ -24,10 +22,7 @@ namespace ApiHost.Controllers
         public async Task<int> Get([FromUri] ComplexRequest request)
         {
             var result = await _client.Request(new CurrencyRequest())
-                .ContinueWith(t =>
-                {
-                    return t.Result?.Currencies?.Count ?? 0;
-                });
+                .ContinueWith(t => { return t.Result?.Currencies?.Count ?? 0; });
             return result;
             //return Ok(result);
         }

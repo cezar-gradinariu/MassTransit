@@ -33,6 +33,12 @@ namespace Worker
             return true;
         }
 
+        public bool Stop(HostControl hostControl)
+        {
+            _busControl?.Stop();
+            return true;
+        }
+
         private void StartBus(IContainer container)
         {
             _busControl = Bus.Factory.CreateUsingRabbitMq(x =>
@@ -47,12 +53,6 @@ namespace Worker
             });
 
             _busControl.Start();
-        }
-
-        public bool Stop(HostControl hostControl)
-        {
-            _busControl?.Stop();
-            return true;
         }
     }
 }

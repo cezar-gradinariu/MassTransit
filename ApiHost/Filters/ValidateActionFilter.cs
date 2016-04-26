@@ -35,16 +35,16 @@ namespace ApiHost.Filters
 
         public void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
         {
-            if(actionExecutedContext.Exception != null)
+            if (actionExecutedContext.Exception != null)
             {
                 return;
             }
-            var content = (ObjectContent)actionExecutedContext.ActionContext.Response.Content;
+            var content = (ObjectContent) actionExecutedContext.ActionContext.Response.Content;
             var result = content?.Value as ResponseBase;
             if (result?.Validation != null)
             {
                 actionExecutedContext.Response =
-                        actionExecutedContext.Request.CreateResponse(HttpStatusCode.Forbidden, result.Validation);
+                    actionExecutedContext.Request.CreateResponse(HttpStatusCode.Forbidden, result.Validation);
                 return;
             }
             if (result?.Error != null)
@@ -66,7 +66,7 @@ namespace ApiHost.Filters
         public IValidator GetValidatorFor(object item)
         {
             var typeInRuntime = item.GetType();
-            var validatorType = typeof(AbstractValidator<>).MakeGenericType(typeInRuntime);
+            var validatorType = typeof (AbstractValidator<>).MakeGenericType(typeInRuntime);
             return _lifetimeScope.IsRegistered(validatorType)
                 ? _lifetimeScope.Resolve(validatorType) as IValidator
                 : null;

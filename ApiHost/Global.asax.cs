@@ -5,13 +5,12 @@ using System.Web;
 using System.Web.Http;
 using ApiHost.Filters;
 using ApiHost.IocModules;
+using ApiHost.MediaTypeFormatters;
+using ApiHost.Validators;
 using Autofac;
 using Autofac.Integration.WebApi;
-using ApiHost.Validators;
 using FluentValidation;
 using MassTransit;
-using Newtonsoft.Json;
-using ApiHost.MediaTypeFormatters;
 
 namespace ApiHost
 {
@@ -39,8 +38,8 @@ namespace ApiHost
             config.Formatters.Insert(0, new JilFormatter());
             //config.Formatters.JsonFormatter.SerializerSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
 
-            builder.RegisterAssemblyTypes(typeof(ComplexRequestValidator).Assembly)
-                .AsClosedTypesOf(typeof(AbstractValidator<>))
+            builder.RegisterAssemblyTypes(typeof (ComplexRequestValidator).Assembly)
+                .AsClosedTypesOf(typeof (AbstractValidator<>))
                 .AsImplementedInterfaces();
 
 
