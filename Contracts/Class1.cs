@@ -1,212 +1,292 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 
-//namespace ConsoleApplication1
-//{
-//    public class Builder<T> where T : ResponseBase, new()
-//    {
-//        private readonly List<Func<T>> _executionChain = new List<Func<T>>();
-//        private readonly T _response = new T();
+namespace ConsoleApplication1
+{
+    public class Builder<T> where T : ResponseBase, new()
+    {
+        private readonly List<Func<T>> _executionChain = new List<Func<T>>();
+        private readonly T _response = new T();
 
-//        public static Builder<T> Instance
-//        {
-//            get { return new Builder<T>(); }
-//        }
+        public static Builder<T> Instance
+        {
+            get { return new Builder<T>(); }
+        }
 
-//        public Builder<T> Requires<TQ>(Func<T, TQ> operation, Action<T, TQ> mapper)
-//            where TQ : ResponseBase
-//        {
-//            _executionChain.Add(MapToFunc(operation, mapper));
-//            return this;
-//        }
+        public Builder<T> Requires<TQ>(Func<T, TQ> operation, Action<T, TQ> mapper)
+            where TQ : ResponseBase
+        {
+            _executionChain.Add(MapToFunc(operation, mapper));
+            return this;
+        }
 
-//        public Builder<T> WouldLike<TQ>(Func<T, TQ> operation, Action<T, TQ> mapper)
-//         where TQ : ResponseBase
-//        {
-//            _executionChain.Add(MapToFunc(operation, mapper, true));
-//            return this;
-//        }
+        public Builder<T> WouldLike<TQ>(Func<T, TQ> operation, Action<T, TQ> mapper)
+         where TQ : ResponseBase
+        {
+            _executionChain.Add(MapToFunc(operation, mapper, true));
+            return this;
+        }
 
-//        public T ExecuteInSequence()
-//        {
-//            return SequentialExecution();
-//        }
+        public T ExecuteInSequence()
+        {
+            return SequentialExecution();
+        }
 
-//        private T SequentialExecution()
-//        {
-//            foreach (var action in _executionChain)
-//            {
-//                var error = action.Invoke();
-//                if (error != null)
-//                {
-//                    return error;
-//                }
-//            }
-//            return _response;
-//        }
+        private T SequentialExecution()
+        {
+            foreach (var action in _executionChain)
+            {
+                var error = action.Invoke();
+                if (error != null)
+                {
+                    return error;
+                }
+            }
+            return _response;
+        }
 
-//        private Func<T> MapToFunc<TQ>(Func<T, TQ> operation, Action<T, TQ> mapper, bool isOptional = false) where TQ : ResponseBase
-//        {
-//            Func<T> func = () =>
-//            {
-//                var result = operation(_response);
-//                if (!result.IsValid())
-//                {
-//                    return isOptional
-//                        ? null
-//                        : new T { Error = result.Error, Validation = result.Validation };
-//                }
-//                mapper(_response, result);
-//                return null;
-//            };
-//            return func;
-//        }
-//    }
+        private Func<T> MapToFunc<TQ>(Func<T, TQ> operation, Action<T, TQ> mapper, bool isOptional = false) where TQ : ResponseBase
+        {
+            return () =>
+            {
+                var result = operation(_response);
+                if (!result.IsValid())
+                {
+                    return isOptional
+                        ? null
+                        : new T { Error = result.Error, Validation = result.Validation };
+                }
+                mapper(_response, result);
+                return null;
+            };
+        }
+    }
 
-//    public class Executor<T> where T : ResponseBase, new()
-//    {
+    public class Executor<T> where T : ResponseBase, new()
+    {
+        private Expression<Func<T>> _toExecute;
+        private List<Tuple<Type, string, string>> _exceptions = new List<Tuple<Type, string, string>>();
 
-//    }
-//    public class Aggregate<T> where T : ResponseBase, new()
-//    {
-//        private string _errorCode;
-//        private string _errorMessage;
-//        private Func<Exception, T> _onException;
-//        private readonly List<Func<T>> _executionChain = new List<Func<T>>();
-//        private readonly T _response = new T();
+        public Executor<T> Run(Expression<Func<T>> toExecute)
+        {
+            _toExecute = toExecute;
+            return this;
+        }
 
-//        public static Aggregate<T> Instance
-//        {
-//            get { return new Aggregate<T>(); }
-//        }
+        public Executor<T> Run(Expression<Func<T>> toExecute, params Error[] errors)
+        {
+            _toExecute = toExecute;
+            return this;
+        }
 
-//        public Aggregate<T> And<TQ>(Func<T, TQ> operation, Action<T, TQ> mapper)
-//            where TQ : ResponseBase
-//        {
-//            _executionChain.Add(MapToFunc(operation, mapper));
-//            return this;
-//        }
+        public Executor<T> When<TException>(string code, string message) where TException : Exception
+        {
+            _exceptions.Add(new Tuple<Type, string, string>(typeof(TException), code, message));
+            return this;
+        }
 
-//        public T ExecuteInParallel()
-//        {
-//            return Execute(ParallelExecution);
-//        }
+        public T Execute()
+        {
+            Func<T> func = _toExecute.Compile();
+            try
+            {
+                return func();
+            }
+            catch (Exception ex)
+            {
+                var item = _exceptions.FirstOrDefault(e => e.Item1 == ex.GetType());
+                if(item != null)
+                {
+                    return new T { Error = new ResponseBase.ResponseStatus(item.Item2, item.Item3) };
+                }
+                throw;
+            }
+        }
 
-//        public T ExecuteInSequence()
-//        {
-//            return Execute(SequentialExecution);
-//        }
+        public T Result()
+        {
+            var x =
+            this.Run(() => new T())
+                .When<InvalidCastException>("f", "d")
+                .When<NotFiniteNumberException>("s", "f")
+                .When<Exception>("e", "m")
+                .Execute();
 
-//        public Aggregate<T> OnException(Func<Exception, T> onException)
-//        {
-//            _onException = onException;
-//            return this;
-//        }
+            var y =
+           this.Run(() => new T(), 
+                    On<InvalidCastException>.Return("f", "d"),
+                    On<NotFiniteNumberException>.Return("s", "f"),
+                    On<Exception>.Return("e", "m"));
 
-//        public Aggregate<T> OnException(string errorCode, string errorMessage)
-//        {
-//            _errorCode = errorCode;
-//            _errorMessage = errorMessage;
-//            return this;
-//        }
+            return y;
+        }
 
-//        private T SequentialExecution()
-//        {
-//            foreach (var action in _executionChain)
-//            {
-//                var error = action.Invoke();
-//                if (error != null)
-//                {
-//                    return error;
-//                }
-//            }
-//            return _response;
-//        }
 
-//        private T ParallelExecution()
-//        {
-//            var tasks = _executionChain.Select(e => Task<T>.Factory.StartNew(e)).ToArray();
-//            Task.WaitAll(tasks, 1000);
-//            var error = tasks.Select(p => p.Result).FirstOrDefault(p => p != null);
-//            return error ?? _response;
-//        }
+        public class On<TException> where TException : Exception
+        {
+            public static T Return(string a, string b)
+            {
+                return new T { Error = new ResponseBase.ResponseStatus(a,b) };
+            }
+        }
 
-//        private T Execute(Func<T> func)
-//        {
-//            var noTryCatch =
-//                string.IsNullOrWhiteSpace(_errorCode) &&
-//                string.IsNullOrWhiteSpace(_errorMessage) &&
-//                _onException == null;
+           
+    }
 
-//            if (noTryCatch)
-//            {
-//                return func();
-//            }
-//            try
-//            {
-//                return func();
-//            }
-//            catch (Exception ex)
-//            {
-//                return _onException == null
-//                    ? new T { Error = new ResponseStatus(_errorCode, _errorMessage) }
-//                    : _onException(ex);
-//            }
-//        }
 
-//        private Func<T> MapToFunc<TQ>(Func<T, TQ> operation, Action<T, TQ> mapper) where TQ : ResponseBase
-//        {
-//            Func<T> func = () =>
-//            {
-//                var result = operation(_response);
-//                if (!result.IsValid())
-//                {
-//                    return new T { Error = result.Error, Validation = result.Validation };
-//                }
-//                mapper(_response, result);
-//                return null;
-//            };
-//            return func;
-//        }
+    public class Aggregate<T> where T : ResponseBase, new()
+    {
+        private string _errorCode;
+        private string _errorMessage;
+        private Func<Exception, T> _onException;
+        private readonly List<Func<T>> _executionChain = new List<Func<T>>();
+        private readonly T _response = new T();
 
-//    }
+        public static Aggregate<T> Instance
+        {
+            get { return new Aggregate<T>(); }
+        }
 
-//    public abstract class ResponseBase
-//    {
-//        public ResponseStatus Error { get; set; }
-//        public ResponseStatus Validation { get; set; }
+        public Aggregate<T> And<TQ>(Func<T, TQ> operation, Action<T, TQ> mapper)
+            where TQ : ResponseBase
+        {
+            _executionChain.Add(MapToFunc(operation, mapper));
+            return this;
+        }
 
-//        public bool IsValid()
-//        {
-//            if (!HasErrors())
-//                return !HasValidationErrors();
-//            return false;
-//        }
+        public T ExecuteInParallel()
+        {
+            return Execute(ParallelExecution);
+        }
 
-//        public bool HasErrors()
-//        {
-//            return Error != null;
-//        }
+        public T ExecuteInSequence()
+        {
+            return Execute(SequentialExecution);
+        }
 
-//        public bool HasValidationErrors()
-//        {
-//            return Validation != null;
-//        }
+        public Aggregate<T> OnException(Func<Exception, T> onException)
+        {
+            _onException = onException;
+            return this;
+        }
 
-//        public virtual object GetResultToReturn()
-//        {
-//            if (Error != null)
-//                return Error;
-//            if (Validation != null)
-//                return Validation;
-//            return GetSuccessResult();
-//        }
+        public Aggregate<T> OnException(string errorCode, string errorMessage)
+        {
+            _errorCode = errorCode;
+            _errorMessage = errorMessage;
+            return this;
+        }
 
-//        protected virtual object GetSuccessResult()
-//        {
-//            return this;
-//        }
-//    }
-//}
+        private T SequentialExecution()
+        {
+            foreach (var action in _executionChain)
+            {
+                var error = action.Invoke();
+                if (error != null)
+                {
+                    return error;
+                }
+            }
+            return _response;
+        }
+
+        private T ParallelExecution()
+        {
+            var tasks = _executionChain.Select(e => Task<T>.Factory.StartNew(e)).ToArray();
+            Task.WaitAll(tasks, 1000);
+            var error = tasks.Select(p => p.Result).FirstOrDefault(p => p != null);
+            return error ?? _response;
+        }
+
+        private T Execute(Func<T> func)
+        {
+            var noTryCatch =
+                string.IsNullOrWhiteSpace(_errorCode) &&
+                string.IsNullOrWhiteSpace(_errorMessage) &&
+                _onException == null;
+
+            if (noTryCatch)
+            {
+                return func();
+            }
+            try
+            {
+                return func();
+            }
+            catch (Exception ex)
+            {
+                return _onException == null
+                    ? new T { Error = new ResponseBase.ResponseStatus(_errorCode, _errorMessage) }
+                    : _onException(ex);
+            }
+        }
+
+        private Func<T> MapToFunc<TQ>(Func<T, TQ> operation, Action<T, TQ> mapper) where TQ : ResponseBase
+        {
+            Func<T> func = () =>
+            {
+                var result = operation(_response);
+                if (!result.IsValid())
+                {
+                    return new T { Error = result.Error, Validation = result.Validation };
+                }
+                mapper(_response, result);
+                return null;
+            };
+            return func;
+        }
+
+    }
+
+    public abstract class ResponseBase
+    {
+        public ResponseStatus Error { get; set; }
+        public ResponseStatus Validation { get; set; }
+
+        public bool IsValid()
+        {
+            if (!HasErrors())
+                return !HasValidationErrors();
+            return false;
+        }
+
+        public bool HasErrors()
+        {
+            return Error != null;
+        }
+
+        public bool HasValidationErrors()
+        {
+            return Validation != null;
+        }
+
+        public virtual object GetResultToReturn()
+        {
+            if (Error != null)
+                return Error;
+            if (Validation != null)
+                return Validation;
+            return GetSuccessResult();
+        }
+
+        protected virtual object GetSuccessResult()
+        {
+            return this;
+        }
+
+        public class ResponseStatus
+        {
+            private string _errorCode;
+            private string _errorMessage;
+
+            public ResponseStatus(string _errorCode, string _errorMessage)
+            {
+                this._errorCode = _errorCode;
+                this._errorMessage = _errorMessage;
+            }
+        }
+    }
+}
