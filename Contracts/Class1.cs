@@ -289,4 +289,68 @@ namespace ConsoleApplication1
             }
         }
     }
+
+
+    public class Classification<TInput, TClassification>
+    {
+        private readonly List<KeyValuePair<TClassification, Predicate<TInput>>> _logic =
+            new List<KeyValuePair<TClassification, Predicate<TInput>>>();
+
+        private KeyValuePair<TClassification, Predicate<TInput>> _default;
+
+        public IsLogic Is(TClassification classfication)
+        {
+            return new IsLogic(this, classfication);
+        }
+
+        public Classification<TInput, TClassification> Default(TClassification classfication)
+        {
+            _default = new KeyValuePair<TClassification, Predicate<TInput>>(classfication, p => true);
+            return this;
+        }
+
+        public Classification<TInput, TClassification> Error(Exception ex)
+        {
+            _default = new KeyValuePair<TClassification, Predicate<TInput>>(
+                default(TClassification),
+                d =>
+                {
+                    throw ex;
+                });
+            return this;
+        }
+
+
+        public class IsLogic
+        {
+            private readonly Classification<TInput, TClassification> _parent;
+            private readonly TClassification _classification;
+
+            public IsLogic(Classification<TInput, TClassification> parent, TClassification classification)
+            {
+                _parent = parent;
+                _classification = classification;
+            }
+
+            public Classification<TInput, TClassification> When(Predicate<TInput> @when)
+            {
+                _parent._logic.Add(new KeyValuePair<TClassification, Predicate<TInput>>(_classification, @when));
+                return _parent;
+            }
+        }
+
+
+        public TClassification Get(TInput input)
+        {
+            _logic.Add(_default);
+            return _logic.FirstOrDefault(p => p.Value.Invoke(input)).Key;
+        }
+
+        //return new Classification<Deal, Constants.DealState>()
+        //       .Is(Constants.DealState.Temp).When(d => d.RD_Status.Equals(Constants.DealStatusStrings.Temp))
+        //       .Is(Constants.DealState.Paid).When(d => d.RD_Status.Equals(Constants.DealStatusStrings.Paid))
+        //       .Default(Constants.DealState.Unpaid)
+        //       .Get(deal);
+
+    }
 }
