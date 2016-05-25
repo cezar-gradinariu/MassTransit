@@ -4,6 +4,7 @@ using FluentValidation;
 using MassTransit;
 using Topshelf;
 using Worker.Interfaces;
+using Worker.IocModules;
 using Worker.Services;
 using Worker.Validators;
 
@@ -20,9 +21,11 @@ namespace Worker
             builder.RegisterType<UnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();
             builder.RegisterType<LowLevelService1>().As<ILowLevelService1>().InstancePerLifetimeScope();
             builder.RegisterType<LowLevelService2>().As<ILowLevelService2>().InstancePerLifetimeScope();
-            builder.RegisterAssemblyTypes(typeof (CurrencyRequestValidator).Assembly)
-                .AsClosedTypesOf(typeof (AbstractValidator<>))
+            builder.RegisterAssemblyTypes(typeof(CurrencyRequestValidator).Assembly)
+                .AsClosedTypesOf(typeof(AbstractValidator<>))
                 .AsImplementedInterfaces();
+
+            builder.RegisterModule<LoggingModule>();
 
             builder.RegisterLifetimeScopeRegistry<string>("message");
 

@@ -1,12 +1,11 @@
 using System;
-using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Autofac;
 using Contracts.Responses;
 using FluentValidation;
-using FluentValidation.Results;
 using MassTransit;
+using Serilog;
 
 namespace Worker
 {
@@ -15,10 +14,12 @@ namespace Worker
         where TResponse : ResponseBase, new()
     {
         protected readonly ILifetimeScope LifetimeScope;
+        protected readonly ILogger Logger;
 
         protected RequestConsumerBase(ILifetimeScope lifetimeScope)
         {
             LifetimeScope = lifetimeScope;
+            Logger = lifetimeScope.Resolve<ILogger>();
         }
 
         public async Task Consume(ConsumeContext<TRequest> context)
@@ -43,25 +44,7 @@ namespace Worker
 
         private static void SetCallId(ConsumeContext<TRequest> context)
         {
-            CallContext.LogicalSetData("call id", context.Headers.Get("ID", (Guid?) Guid.Empty));
-        }
-    }
-
-    public static class FluentValidationExtensions
-    {
-        public static Error AsError(this ValidationResult validation)
-        {
-            return new Error
-            {
-                ErrorCode = validation.Errors.First().ErrorCode,
-                ErrorMessage = validation.Errors.First().ErrorMessage,
-                Errors = validation.Errors.Select(v => new ErrorInfo
-                {
-                    ErrorCode = v.ErrorCode,
-                    ErrorMessage = v.ErrorMessage,
-                    PropertyName = v.PropertyName
-                }).ToList()
-            };
+            CallContext.LogicalSetData("callId", context.Headers.Get("callId", (Guid?) Guid.Empty));
         }
     }
 }

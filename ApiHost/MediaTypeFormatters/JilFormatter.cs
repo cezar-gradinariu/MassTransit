@@ -27,7 +27,7 @@ namespace ApiHost.MediaTypeFormatters
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
             return true;
         }
@@ -36,7 +36,7 @@ namespace ApiHost.MediaTypeFormatters
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
             return true;
         }

@@ -22,7 +22,7 @@ namespace ApiHost.IocModules
                             h.Password("admin");
                             h.Heartbeat(30);
                         });
-                    cfg.ConfigureSend(p => { p.UseSendExecute(sendContext => { sendContext.Headers.Set("ID", (string) CallContext.LogicalGetData("ID")); }); });
+                    cfg.ConfigureSend(p => { p.UseSendExecute(sendContext => { sendContext.Headers.Set("callId", (string) CallContext.LogicalGetData("callId")); }); });
                 });
                 return busControl;
             })

@@ -33,6 +33,7 @@ namespace ApiHost
             //Register mass transit
             builder.RegisterModule<BusModule>();
             builder.RegisterModule<ValidationModule>();
+            builder.RegisterModule<SerilogModule>();
 
             config.Formatters.RemoveAt(0);
             config.Formatters.Insert(0, new JilFormatter());
@@ -55,7 +56,7 @@ namespace ApiHost
         protected void Application_BeginRequest()
         {
             var x = Guid.NewGuid().ToString();
-            CallContext.LogicalSetData("ID", x);
+            CallContext.LogicalSetData("callId", x);
         }
     }
 }
