@@ -35,7 +35,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="bUILDER.cs" />
     <Compile Include="Requests\ComplexRequest.cs" />
     <Compile Include="Responses\CurrencyInfo.cs" />
     <Compile Include="Requests\CurrencyRequest.cs" />

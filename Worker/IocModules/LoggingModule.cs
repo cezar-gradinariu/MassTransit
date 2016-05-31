@@ -21,8 +21,10 @@ namespace Worker.IocModules
                 .Enrich.WithProperty("MachineName", Environment.MachineName)
                 .Enrich.With(new CorrelationIdEnricher())
                 .Enrich.WithProperty("OperatingSystem", Environment.OSVersion.VersionString)
-                .WriteTo.MongoDB("mongodb://localhost:27017/logs")
-                .WriteTo.File("logs.txt", LogEventLevel.Error)
+                //.WriteTo.MongoDB("mongodb://localhost:27017/logs")
+                //.WriteTo.File("logs.txt", LogEventLevel.Verbose)
+                //.WriteTo.Loggly(LogEventLevel.Verbose, 250, TimeSpan.FromMilliseconds(250))
+                .WriteTo.Seq("http://localhost:5341/", batchPostingLimit: 200,  period: TimeSpan.FromMilliseconds(100))
                 .CreateLogger();
             return log;
         }

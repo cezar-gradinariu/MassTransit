@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Autofac;
 using Contracts.Requests;
@@ -18,9 +17,12 @@ namespace Worker
 
         protected override async Task ConsumeRequest(ConsumeContext<CurrencyRequest> context)
         {
-            var callId = (Guid) CallContext.LogicalGetData("callId");
-            Logger.Information("A call with id {callId} is done on worker.", callId);
-            Logger.Error("Emulated error call with id {callId} is done on worker.", callId);
+            Logger.Information("Start consuming the request");
+            Logger.Error("Emulated error call with id {callId} is done on worker.");
+            for (int i = 0; i < 100; i++)
+            {
+                Logger.Information("Just some dummy information");
+            }
 
             var uow1 = LifetimeScope.Resolve<ILowLevelService1>();
             var uow2 = LifetimeScope.Resolve<ILowLevelService2>();
@@ -37,7 +39,7 @@ namespace Worker
                     new CurrencyInfo {IsoCode = "USD"}
                 }
             });
-            Logger.Information("A call with id {callId} was successfully completed on the worker.", callId);
+            Logger.Information("A call with id {callId} was successfully completed on the worker.");
         }
     }
 }
