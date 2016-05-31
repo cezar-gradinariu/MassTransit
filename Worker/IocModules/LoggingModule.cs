@@ -25,6 +25,7 @@ namespace Worker.IocModules
                 //.WriteTo.File("logs.txt", LogEventLevel.Verbose)
                 //.WriteTo.Loggly(LogEventLevel.Verbose, 250, TimeSpan.FromMilliseconds(250))
                 .WriteTo.Seq("http://localhost:5341/", batchPostingLimit: 200,  period: TimeSpan.FromMilliseconds(100))
+                .WriteTo.Elasticsearch()
                 .CreateLogger();
             return log;
         }

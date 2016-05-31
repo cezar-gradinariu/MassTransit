@@ -15,6 +15,7 @@ namespace ApiHost.IocModules
                     .Enrich.WithProperty("MachineName", Environment.MachineName)
                     .Enrich.WithProperty("OperatingSystem", Environment.OSVersion.VersionString)
                     .WriteTo.MongoDB("mongodb://localhost:27017/logs")
+                    .WriteTo.Elasticsearch()
                     .CreateLogger();
                 return log;
             })
