@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Contracts</RootNamespace>
     <AssemblyName>Contracts</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -35,7 +35,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="bUILDER.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="Requests\ComplexRequest.cs" />
     <Compile Include="Responses\CurrencyInfo.cs" />
     <Compile Include="Requests\CurrencyRequest.cs" />
