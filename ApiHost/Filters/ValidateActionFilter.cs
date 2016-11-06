@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
 using Autofac;
@@ -70,6 +73,41 @@ namespace ApiHost.Filters
             return _lifetimeScope.IsRegistered(validatorType)
                 ? _lifetimeScope.Resolve(validatorType) as IValidator
                 : null;
+        }
+
+        public Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext, CancellationToken cancellationToken)
+        {
+            if (actionExecutedContext.Exception != null)
+            {
+                return Task.FromResult(0);
+            }
+            var content = (ObjectContent)actionExecutedContext.ActionContext.Response.Content;
+            var result = content?.Value as ResponseBase;
+            if (result?.Validation != null)
+            {
+                actionExecutedContext.Response =
+                    actionExecutedContext.Request.CreateResponse(HttpStatusCode.Forbidden, result.Validation);
+                return Task.FromResult(0);
+            }
+            if (result?.Error != null)
+            {
+                actionExecutedContext.Response =
+                    actionExecutedContext.Request.CreateResponse(HttpStatusCode.InternalServerError, result.Error);
+            }
+            return Task.FromResult(0);
+        }
+
+        public Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
+        {
+            foreach (var item in actionContext.ActionArguments.Values)
+            {
+                var vResult = Validate(item);
+                if (vResult != null)
+                {
+                    actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Forbidden, vResult);
+                }
+            }
+            return Task.FromResult(0);
         }
     }
 
